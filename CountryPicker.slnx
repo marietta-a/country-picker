@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="CountryPicker.Blazor/CountryPicker.Blazor.csproj" />
   <Project Path="CountryPicker.Demo/CountryPicker.Demo.csproj" />
+  <Project Path="CountryPicker.Tests/CountryPicker.Tests.csproj" />
 </Solution>
