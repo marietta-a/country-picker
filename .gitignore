@@ -1,0 +1,60 @@
+## Visual Studio & .NET Core Standard gitignore
+## Sourced from official GitHub gitignore for Visual Studio and .NET
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific files (MonoDevelop/Xamarin Studio)
+*.userprefs
+
+# Mono auto-generated files
+mono_crash.*
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Re]leasePublic/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache directory
+.vs/
+
+# MSTest test Results
+TestResults/
+[Bb]uildLog.*
+
+# NUnit
+*.VisualState.xml
+TestResult.xml
+nunit-agent*
+
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored
+**/packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Backup folders
+_UpgradeReport_Files/
+Backup*/
+
+# Custom rules requested by the user:
+**/countries.json
+.env
+agents/
+verify-location.*

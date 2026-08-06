@@ -1,0 +1,217 @@
+@namespace CountryPicker.Blazor
+@inject LocationService LocationService
+
+<div class="country-picker-container @(Disabled || string.IsNullOrEmpty(CountryCode) ? "disabled" : "")">
+    <!-- Trigger Button -->
+    <button type="button" class="country-picker-trigger" @onclick="ToggleDropdown" disabled="@(Disabled || string.IsNullOrEmpty(CountryCode))">
+        @if (Value != null)
+        {
+            <span class="country-picker-flag">🗺️</span>
+            <span class="country-picker-text">@Value.Name</span>
+        }
+        else
+        {
+            <span class="country-picker-placeholder">
+                @(string.IsNullOrEmpty(CountryCode) ? "Select country first..." : ButtonPlaceholder)
+            </span>
+        }
+        <span class="country-picker-arrow @(IsOpen ? "open" : "")">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </span>
+    </button>
+
+    <!-- Dropdown Popover -->
+    @if (IsOpen)
+    {
+        <!-- Backdrop to handle closing when clicking outside the popover -->
+        <div class="country-picker-backdrop" @onclick="CloseDropdown"></div>
+        
+        <div class="country-picker-dropdown">
+            @if (ShowSearch)
+            {
+                <div class="country-picker-search-container">
+                    <span class="country-picker-search-icon">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" 
+                           class="country-picker-search-input" 
+                           placeholder="@Placeholder" 
+                           @value="_searchQuery" 
+                           @oninput="OnSearchInput" 
+                           @ref="_searchInputRef" />
+                    @if (!string.IsNullOrEmpty(_searchQuery))
+                    {
+                        <button type="button" class="country-picker-clear-btn" @onclick="ClearSearch">
+                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    }
+                </div>
+            }
+
+            <ul class="country-picker-list">
+                @{
+                    var list = GetFilteredStates().ToList();
+                }
+                
+                @if (list.Count > 0)
+                {
+                    @for (int i = 0; i < list.Count; i++)
+                    {
+                        var state = list[i];
+                        <li class="country-picker-item @(Value?.Id == state.Id ? "selected" : "")" 
+                            @onclick="() => SelectState(state)">
+                            <span class="country-picker-list-flag">🗺️</span>
+                            <span class="country-picker-list-name">@state.Name</span>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="country-picker-no-results">No states found</li>
+                }
+            </ul>
+        </div>
+    }
+</div>
+
+@code {
+    private bool IsOpen { get; set; }
+    private string _searchQuery = string.Empty;
+    private ElementReference _searchInputRef;
+    private bool _shouldFocusSearch;
+    private string? _previousCountryCode;
+
+    /// <summary>
+    /// Current selected state. Supports two-way binding (@bind-Value).
+    /// </summary>
+    [Parameter]
+    public State? Value { get; set; }
+
+    /// <summary>
+    /// Event triggered when the selected state changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<State?> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Event triggered when a state is selected.
+    /// </summary>
+    [Parameter]
+    public EventCallback<State> OnSelected { get; set; }
+
+    /// <summary>
+    /// Country code to load states for.
+    /// </summary>
+    [Parameter]
+    public string? CountryCode { get; set; }
+
+    /// <summary>
+    /// Whether to show the search input field.
+    /// </summary>
+    [Parameter]
+    public bool ShowSearch { get; set; } = true;
+
+    /// <summary>
+    /// Placeholder text for the search input.
+    /// </summary>
+    [Parameter]
+    public string Placeholder { get; set; } = "Search state...";
+
+    /// <summary>
+    /// Default trigger button placeholder text when nothing is selected.
+    /// </summary>
+    [Parameter]
+    public string ButtonPlaceholder { get; set; } = "Select state";
+
+    /// <summary>
+    /// Whether the dropdown is disabled.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (CountryCode != _previousCountryCode)
+        {
+            _previousCountryCode = CountryCode;
+            if (Value != null)
+            {
+                Value = null;
+                ValueChanged.InvokeAsync(null);
+            }
+        }
+    }
+
+    private void ToggleDropdown()
+    {
+        if (Disabled || string.IsNullOrEmpty(CountryCode)) return;
+        
+        IsOpen = !IsOpen;
+        _searchQuery = string.Empty; // Reset search upon toggling
+        if (IsOpen)
+        {
+            _shouldFocusSearch = true;
+        }
+    }
+
+    private void CloseDropdown()
+    {
+        IsOpen = false;
+        _searchQuery = string.Empty;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldFocusSearch && ShowSearch && IsOpen)
+        {
+            _shouldFocusSearch = false;
+            try
+            {
+                await _searchInputRef.FocusAsync();
+            }
+            catch
+            {
+                // Soft ignore
+            }
+        }
+    }
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        _searchQuery = e.Value?.ToString() ?? string.Empty;
+    }
+
+    private void ClearSearch()
+    {
+        _searchQuery = string.Empty;
+    }
+
+    private async Task SelectState(State state)
+    {
+        Value = state;
+        await ValueChanged.InvokeAsync(state);
+        await OnSelected.InvokeAsync(state);
+        CloseDropdown();
+    }
+
+    private IEnumerable<State> GetFilteredStates()
+    {
+        var source = LocationService.GetStates(CountryCode);
+
+        if (!string.IsNullOrWhiteSpace(_searchQuery))
+        {
+            var query = _searchQuery.Trim();
+            source = source.Where(s => s.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return source;
+    }
+}

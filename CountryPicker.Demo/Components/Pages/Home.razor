@@ -1,0 +1,482 @@
+@page "/"
+@rendermode InteractiveServer
+
+<PageTitle>CountryPicker Standalone Test App</PageTitle>
+
+<div class="test-container">
+    <header class="test-header">
+        <h1 class="test-title">CountryPicker Standalone Test App</h1>
+        <p class="test-subtitle">This executable project verifies the behavior of the <code>CountryPicker.Blazor</code> Razor Class Library in a fresh, isolated environment.</p>
+    </header>
+
+    <div class="test-grid">
+        <!-- Test Panel: Dynamic Controls -->
+        <div class="test-card controls">
+            <h2 class="card-title">Test Control Center</h2>
+            <p class="card-description">Modify properties dynamically to test the reactivity and robustness of the component's API parameters.</p>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <input type="checkbox" @bind="ShowPhoneCode" />
+                    Show Phone Dialing Codes
+                </label>
+                <span class="control-desc">Toggles dialing code visibility (e.g., "+1", "+30") in the trigger button and list items.</span>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <input type="checkbox" @bind="ShowSearch" />
+                    Enable Search / Filtering
+                </label>
+                <span class="control-desc">Toggles the text search box inside the dropdown.</span>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <input type="checkbox" @bind="EnableFavorites" />
+                    Pin Favorite Countries
+                </label>
+                <span class="control-desc">Pins preselected countries (US, GB, GR, CA, AU) to the top of the list in a "Favorites" section.</span>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <input type="checkbox" @bind="EnableExclusions" />
+                    Exclude Specific Regions
+                </label>
+                <span class="control-desc">Excludes/hides certain countries (Afghanistan - AF, Albania - AL) from selection.</span>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <input type="checkbox" @bind="Disabled" />
+                    Disable Picker Component
+                </label>
+                <span class="control-desc">Puts the component in an inactive, non-clickable state.</span>
+            </div>
+        </div>
+
+        <!-- Test Panel: Component Under Test -->
+        <div class="test-card component-under-test">
+            <h2 class="card-title">Live Component Instantiation</h2>
+            <p class="card-description">Interact with the compiled components below to verify selection flows, cascading dependencies, search indexes, and focus states.</p>
+
+            <div class="picker-test-zone">
+                <div class="picker-field">
+                    <label class="field-label">Country Picker:</label>
+                    <CountryPicker 
+                        @bind-Value="ActiveSelection"
+                        ShowPhoneCode="ShowPhoneCode"
+                        ShowSearch="ShowSearch"
+                        Disabled="Disabled"
+                        FavoriteCountries="GetFavorites()"
+                        ExcludeCountries="GetExclusions()"
+                        Placeholder="Search country records..."
+                        ButtonPlaceholder="Select a country record..."
+                        OnSelected="OnSelectedCallback" />
+                </div>
+
+                <div class="picker-field mt-3">
+                    <label class="field-label">State Picker (Cascaded):</label>
+                    <StatePicker 
+                        @bind-Value="ActiveState"
+                        CountryCode="@ActiveSelection?.CountryCode"
+                        Disabled="Disabled"
+                        Placeholder="Search state records..."
+                        ButtonPlaceholder="Select a state..."
+                        OnSelected="OnStateCallback" />
+                </div>
+
+                <div class="picker-field mt-3">
+                    <label class="field-label">City Picker (Cascaded):</label>
+                    <CityPicker 
+                        @bind-Value="ActiveCity"
+                        CountryCode="@ActiveSelection?.CountryCode"
+                        StateId="@ActiveState?.Id"
+                        Disabled="Disabled"
+                        Placeholder="Search city records..."
+                        ButtonPlaceholder="Select a city..."
+                        OnSelected="OnCityCallback" />
+                </div>
+            </div>
+
+            @if (LastSelectedMsg != null)
+            {
+                <div class="test-log-entry">
+                    <span class="log-indicator">✔</span>
+                    <span class="log-text">@LastSelectedMsg</span>
+                </div>
+            }
+
+            @if (ActiveSelection != null)
+            {
+                <div class="selection-display animate-slide">
+                    <h3 class="details-heading">Active Bindings Inspection</h3>
+                    <div class="grid-details">
+                        <div class="grid-cell">
+                            <span class="cell-lbl">Emoji Flag</span>
+                            <span class="cell-val emoji-xl">@ActiveSelection.FlagEmoji</span>
+                        </div>
+                        <div class="grid-cell">
+                            <span class="cell-lbl">Country Name</span>
+                            <span class="cell-val font-semibold">@ActiveSelection.Name</span>
+                        </div>
+                        <div class="grid-cell">
+                            <span class="cell-lbl">ISO 3166-1 Code</span>
+                            <span class="cell-val code-badge">@ActiveSelection.CountryCode</span>
+                        </div>
+                        <div class="grid-cell">
+                            <span class="cell-lbl">Phone Dial Code</span>
+                            <span class="cell-val font-semibold">+@ActiveSelection.PhoneCode</span>
+                        </div>
+
+                        @if (ActiveState != null)
+                        {
+                            <div class="grid-cell">
+                                <span class="cell-lbl">Selected State</span>
+                                <span class="cell-val font-semibold text-primary-color">🗺️ @ActiveState.Name</span>
+                            </div>
+                            <div class="grid-cell">
+                                <span class="cell-lbl">State ID</span>
+                                <span class="cell-val code-badge bg-teal">@ActiveState.Id</span>
+                            </div>
+                        }
+
+                        @if (ActiveCity != null)
+                        {
+                            <div class="grid-cell">
+                                <span class="cell-lbl">Selected City</span>
+                                <span class="cell-val font-semibold text-secondary-color">🏙️ @ActiveCity.Name</span>
+                            </div>
+                            <div class="grid-cell">
+                                <span class="cell-lbl">City ID</span>
+                                <span class="cell-val code-badge bg-purple">@ActiveCity.Id</span>
+                            </div>
+                        }
+
+                        <div class="grid-cell span-2">
+                            <span class="cell-lbl">Phone Number Format Example</span>
+                            <span class="cell-val font-mono">@ActiveSelection.Example</span>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="waiting-prompt">
+                    <span class="prompt-icon">🔍</span>
+                    Waiting for user selection... Open the dropdown above to test.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .test-container {
+        max-width: 1050px;
+        margin: 40px auto;
+        padding: 0 20px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #2c3e50;
+    }
+
+    .test-header {
+        text-align: center;
+        margin-bottom: 40px;
+        border-bottom: 1px solid #edf2f7;
+        padding-bottom: 30px;
+    }
+
+    .test-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #1a202c;
+        margin-bottom: 10px;
+        letter-spacing: -0.5px;
+    }
+
+    .test-subtitle {
+        font-size: 16px;
+        color: #718096;
+        max-width: 650px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .test-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+        gap: 30px;
+    }
+
+    .test-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 28px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-title {
+        font-size: 19px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-top: 0;
+        margin-bottom: 6px;
+    }
+
+    .card-description {
+        font-size: 13.5px;
+        color: #718096;
+        line-height: 1.5;
+        margin-bottom: 24px;
+    }
+
+    /* Controls Styling */
+    .control-group {
+        padding: 12px 14px;
+        border: 1px solid #edf2f7;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        background-color: #f7fafc;
+        transition: background-color 0.15s ease;
+    }
+
+    .control-group:hover {
+        background-color: #edf2f7;
+    }
+
+    .control-label {
+        display: flex;
+        align-items: center;
+        font-size: 14.5px;
+        font-weight: 600;
+        color: #2d3748;
+        cursor: pointer;
+        margin-bottom: 4px;
+    }
+
+    .control-label input[type="checkbox"] {
+        margin-right: 10px;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .control-desc {
+        display: block;
+        font-size: 12px;
+        color: #718096;
+        padding-left: 26px;
+        line-height: 1.4;
+    }
+
+    /* Test Zone Styling */
+    .picker-test-zone {
+        margin-bottom: 24px;
+        background-color: #fdfdfd;
+        border: 1px dashed #cbd5e0;
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: #4a5568;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .test-log-entry {
+        background-color: #f0fff4;
+        border: 1px solid #c6f6d5;
+        color: #38a169;
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 13px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .log-indicator {
+        margin-right: 8px;
+        font-weight: bold;
+    }
+
+    .waiting-prompt {
+        margin-top: auto;
+        padding: 30px;
+        background-color: #f7fafc;
+        border: 1px dashed #cbd5e0;
+        border-radius: 8px;
+        text-align: center;
+        color: #a0aec0;
+        font-size: 14px;
+    }
+
+    .prompt-icon {
+        display: block;
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    /* Selection Details Display */
+    .selection-display {
+        margin-top: auto;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 18px;
+    }
+
+    .details-heading {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #718096;
+        margin-top: 0;
+        margin-bottom: 12px;
+        letter-spacing: 0.5px;
+    }
+
+    .grid-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .grid-details-item {
+        display: flex;
+        flex-direction: column;
+        background-color: #ffffff;
+        border: 1px solid #edf2f7;
+        border-radius: 6px;
+        padding: 8px 12px;
+    }
+
+    .grid-cell {
+        display: flex;
+        flex-direction: column;
+        background-color: #ffffff;
+        border: 1px solid #edf2f7;
+        border-radius: 6px;
+        padding: 8px 12px;
+    }
+
+    .grid-cell.span-2 {
+        grid-column: span 2;
+    }
+
+    .cell-lbl {
+        font-size: 10px;
+        font-weight: 600;
+        color: #a0aec0;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .cell-val {
+        font-size: 14px;
+        color: #2d3748;
+    }
+
+    .cell-val.font-semibold {
+        font-weight: 600;
+    }
+
+    .cell-val.font-mono {
+        font-family: monospace;
+        font-size: 13.5px;
+        color: #4a5568;
+    }
+
+    .cell-val.emoji-xl {
+        font-size: 26px;
+        line-height: 1;
+    }
+
+    .code-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        background-color: #4a5568;
+        color: #ffffff;
+        font-size: 11px;
+        border-radius: 4px;
+        width: fit-content;
+        font-family: monospace;
+    }
+
+    .bg-teal {
+        background-color: #319795 !important;
+    }
+
+    .bg-purple {
+        background-color: #805ad5 !important;
+    }
+
+    .text-primary-color {
+        color: #3182ce;
+    }
+
+    .text-secondary-color {
+        color: #319795;
+    }
+
+    .animate-slide {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @@keyframes slideUp {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@keyframes slideDown {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+@code {
+    private Country? ActiveSelection;
+    private State? ActiveState;
+    private City? ActiveCity;
+    
+    // Dynamic control values
+    private bool ShowPhoneCode = true;
+    private bool ShowSearch = true;
+    private bool EnableFavorites = true;
+    private bool EnableExclusions = false;
+    private bool Disabled = false;
+
+    private string? LastSelectedMsg;
+
+    private IEnumerable<string>? GetFavorites() => 
+        EnableFavorites ? new[] { "US", "GB", "GR", "CA", "AU" } : null;
+
+    private IEnumerable<string>? GetExclusions() => 
+        EnableExclusions ? new[] { "AF", "AL" } : null;
+
+    private void OnSelectedCallback(Country country)
+    {
+        LastSelectedMsg = $"Selection Callback: Selected {country.Name} (ISO: {country.CountryCode}) at {DateTime.Now:HH:mm:ss}";
+    }
+
+    private void OnStateCallback(State state)
+    {
+        LastSelectedMsg = $"State Callback: Selected {state.Name} (ID: {state.Id}) at {DateTime.Now:HH:mm:ss}";
+    }
+
+    private void OnCityCallback(City city)
+    {
+        LastSelectedMsg = $"City Callback: Selected {city.Name} (ID: {city.Id}) at {DateTime.Now:HH:mm:ss}";
+    }
+}
