@@ -13,11 +13,16 @@ on:
         required: true
         default: true
         type: boolean
+      nuget_username:
+        description: 'NuGet.org Username (Profile Name) to login'
+        required: false
+        type: string
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
       contents: read
       packages: write
 
@@ -44,15 +49,23 @@ jobs:
     - name: Pack NuGet Package
       run: dotnet pack CountryPicker.Blazor/CountryPicker.Blazor.csproj --configuration Release --no-build --output ./nupkg
 
+    - name: NuGet Login
+      if: |
+        (github.event_name == 'release' && github.event.action == 'published') ||
+        (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+        (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget == true)
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: ${{ inputs.nuget_username || github.repository_owner }}
+
     - name: Publish to NuGet.org
       if: |
         (github.event_name == 'release' && github.event.action == 'published') ||
         (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
         (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget == true)
-      env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: |
         dotnet nuget push "./nupkg/*.nupkg" \
-          --api-key "$NUGET_API_KEY" \
+          --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
           --source "https://api.nuget.org/v3/index.json" \
           --skip-duplicate
