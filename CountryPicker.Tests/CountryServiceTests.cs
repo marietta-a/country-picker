@@ -113,4 +113,33 @@ public class CountryServiceTests
         Assert.NotEmpty(caliCities);
         Assert.Contains(caliCities, c => c.Name == "Los Angeles");
     }
+
+    [Fact]
+    public void OptimizeDataset()
+    {
+        var countryService = new CountryService();
+        var countries = countryService.GetAll().ToList();
+        
+        var options = new System.Text.Json.JsonSerializerOptions
+        {
+            WriteIndented = false,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault
+        };
+
+        var minifiedJson = System.Text.Json.JsonSerializer.Serialize(countries, options);
+        var minifiedBytes = System.Text.Encoding.UTF8.GetBytes(minifiedJson);
+
+        var targetPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "CountryPicker.Blazor", "countries.json.br");
+        var absolutePath = Path.GetFullPath(targetPath);
+        
+        using (var fileStream = File.Create(absolutePath))
+        using (var brotliStream = new System.IO.Compression.BrotliStream(fileStream, System.IO.Compression.CompressionLevel.Optimal))
+        {
+            brotliStream.Write(minifiedBytes, 0, minifiedBytes.Length);
+        }
+        
+        Assert.True(File.Exists(absolutePath));
+        var info = new FileInfo(absolutePath);
+        Assert.True(info.Length > 0);
+    }
 }

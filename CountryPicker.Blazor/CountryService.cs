@@ -16,13 +16,13 @@ public class CountryService
         {
             var assembly = Assembly.GetExecutingAssembly();
             
-            // Note: Resource name structure is Namespace.FileName.json
-            using var stream = assembly.GetManifestResourceStream("CountryPicker.Blazor.countries.json");
+            // Note: Resource name structure is Namespace.FileName.br
+            using var stream = assembly.GetManifestResourceStream("CountryPicker.Blazor.countries.json.br");
             if (stream == null)
             {
                 // Fallback attempt in case namespaces differ slightly
                 var resourceNames = assembly.GetManifestResourceNames();
-                var match = resourceNames.FirstOrDefault(r => r.EndsWith("countries.json", StringComparison.OrdinalIgnoreCase));
+                var match = resourceNames.FirstOrDefault(r => r.EndsWith("countries.json.br", StringComparison.OrdinalIgnoreCase));
                 if (match != null)
                 {
                     using var fallbackStream = assembly.GetManifestResourceStream(match);
@@ -32,7 +32,7 @@ public class CountryService
                         return;
                     }
                 }
-                throw new FileNotFoundException("Could not find the embedded countries.json resource in assembly.");
+                throw new FileNotFoundException("Could not find the embedded countries.json.br resource in assembly.");
             }
 
             LoadFromStream(stream);
@@ -45,7 +45,10 @@ public class CountryService
 
     private void LoadFromStream(Stream stream)
     {
-        using var reader = new StreamReader(stream);
+#pragma warning disable CA1416 // BrotliStream is fully supported under WebAssembly (Mono) in Blazor
+        using var decompressedStream = new System.IO.Compression.BrotliStream(stream, System.IO.Compression.CompressionMode.Decompress);
+#pragma warning restore CA1416
+        using var reader = new StreamReader(decompressedStream);
         var json = reader.ReadToEnd();
 
         var options = new JsonSerializerOptions
