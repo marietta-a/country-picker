@@ -115,6 +115,7 @@ public class State
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
+    [JsonIgnore]
     [JsonPropertyName("country_id")]
     public int CountryId { get; set; }
 
@@ -133,6 +134,7 @@ public class City
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
+    [JsonIgnore]
     [JsonPropertyName("state_id")]
     public int StateId { get; set; }
 }
