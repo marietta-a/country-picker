@@ -1,9 +1,5 @@
 # CountryPicker.Blazor
 
-[![NuGet Version](https://img.shields.io/nuget/v/CountryPicker.Blazor.svg?style=flat-square)](https://www.nuget.org/packages/CountryPicker.Blazor/)
-[![Target Framework](https://img.shields.io/badge/.NET-10.0-blue.svg?style=flat-square)](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
-[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
-
 A lightweight, high-performance, and beautifully styled **Country, State, and City Picker** component library for **Blazor** (Interactive Server & WebAssembly). 
 
 ---
@@ -16,6 +12,9 @@ A lightweight, high-performance, and beautifully styled **Country, State, and Ci
 - **Cascading Geography**: Composed of three complementary components—`CountryPicker`, `StatePicker`, and `CityPicker`—which cascade seamlessly. When a parent country/state changes, child components automatically reset their values.
 - **Dialing Codes Support**: Toggle international phone dial codes (e.g., `+1`, `+30`, `+44`) directly in the select triggers and list items.
 - **Exclusion & Inclusion Filters**: Specify which countries to explicitly exclude/hide or provide a strict list of allowed country codes.
+- **🎨 Custom Visual Themes**: Out-of-the-box support for four rich visual themes: `Light`, `Dark`, `Blue`, and `Forest` built on clean CSS variable cascading.
+- **📐 Corner Roundness Options**: Easily configure custom container and select button corner radius shapes: `None`, `Small`, `Medium`, `Large`, or `Full` pills.
+- **🗺️ Toggleable Geography Icons**: Hide or display helper map (`🗺️`) and city (`🏙️`) icons in the triggers and dropdown list items.
 - **Modern UI & Smooth Animations**: Out-of-the-box CSS isolation ensures beautiful, native-feeling panels with micro-interactions, popover animations, clear buttons, and click-outside dismissal (via full-viewport backdrop overlays).
 - **Interactive Focus**: Automatically shifts focus to the search query input as soon as the popover dropdown opens.
 
@@ -55,9 +54,9 @@ Add the namespace to your global imports in `_Imports.razor`:
 
 ## 💻 Usage Examples
 
-### Basic Country Picker (with Phone Code)
+### Styled Country Picker (Dark Theme & Large Roundness)
 
-Use the `<CountryPicker>` component with two-way binding on the `@bind-Value` attribute.
+Use the `<CountryPicker>` component with two-way binding on the `@bind-Value` attribute, and custom style enums:
 
 ```razor
 @page "/simple-picker"
@@ -69,6 +68,8 @@ Use the `<CountryPicker>` component with two-way binding on the `@bind-Value` at
     @bind-Value="SelectedCountry" 
     ShowPhoneCode="true" 
     ShowSearch="true"
+    Theme="PickerTheme.Dark"
+    Roundness="PickerRoundness.Large"
     Placeholder="Search country records..."
     ButtonPlaceholder="Select your country..." />
 
@@ -82,7 +83,7 @@ Use the `<CountryPicker>` component with two-way binding on the `@bind-Value` at
 }
 ```
 
-### Cascading Geography (Country ➔ State ➔ City)
+### Cascading Geography (Country ➔ State ➔ City) with Forest Theme
 
 Implement cascading dropdowns easily by linking parent values to child input parameters. State and City options will load dynamically and clear automatically if parent bindings change.
 
@@ -95,6 +96,8 @@ Implement cascading dropdowns easily by linking parent values to child input par
     <CountryPicker 
         @bind-Value="ActiveCountry"
         FavoriteCountries='new[] { "US", "GB", "CA" }'
+        Theme="PickerTheme.Forest"
+        Roundness="PickerRoundness.Medium"
         Placeholder="Search country..."
         ButtonPlaceholder="Select Country" />
 </div>
@@ -104,6 +107,9 @@ Implement cascading dropdowns easily by linking parent values to child input par
     <StatePicker 
         @bind-Value="ActiveState"
         CountryCode="@ActiveCountry?.CountryCode"
+        Theme="PickerTheme.Forest"
+        Roundness="PickerRoundness.Medium"
+        ShowIcon="true"
         Placeholder="Search state..."
         ButtonPlaceholder="Select State" />
 </div>
@@ -114,27 +120,12 @@ Implement cascading dropdowns easily by linking parent values to child input par
         @bind-Value="ActiveCity"
         CountryCode="@ActiveCountry?.CountryCode"
         StateId="@ActiveState?.Id"
+        Theme="PickerTheme.Forest"
+        Roundness="PickerRoundness.Medium"
+        ShowIcon="true"
         Placeholder="Search city..."
         ButtonPlaceholder="Select City" />
 </div>
-
-@if (ActiveCountry != null)
-{
-    <div class="alert alert-info mt-4">
-        <h4>Selection Summary:</h4>
-        <ul>
-            <li><strong>Country:</strong> @ActiveCountry.Name (@ActiveCountry.CountryCode)</li>
-            @if (ActiveState != null)
-            {
-                <li><strong>State:</strong> @ActiveState.Name</li>
-            }
-            @if (ActiveCity != null)
-            {
-                <li><strong>City:</strong> @ActiveCity.Name</li>
-            }
-        </ul>
-    </div>
-}
 
 @code {
     private Country? ActiveCountry { get; set; }
@@ -159,6 +150,10 @@ Implement cascading dropdowns easily by linking parent values to child input par
 | `CountryFilter` | `IEnumerable<string>?` | `null` | Optional list of 2-letter ISO codes. If provided, *only* these countries will be shown. |
 | `ShowPhoneCode` | `bool` | `false` | When true, includes dial codes (e.g., `+1`, `+30`) in both the button label and popover items. |
 | `ShowSearch` | `bool` | `true` | Toggle the search input box inside the dropdown. |
+| `Theme` | `PickerTheme` | `PickerTheme.Light` | Visual styling theme (`Light`, `Dark`, `Blue`, `Forest`). |
+| `Roundness` | `PickerRoundness` | `PickerRoundness.Medium` | Corner radius layout style (`None`, `Small`, `Medium`, `Large`, `Full`). |
+| `Class` | `string` | `""` | Optional custom CSS class applied to the outer container. |
+| `Style` | `string` | `""` | Optional inline CSS styles applied to the outer container. |
 | `Placeholder` | `string` | `"Search country..."` | Placeholder text for the search input. |
 | `ButtonPlaceholder` | `string` | `"Select country"` | Default text shown in the trigger button when nothing is selected. |
 | `Disabled` | `bool` | `false` | Sets the component to an inactive, non-interactive state. |
@@ -173,7 +168,12 @@ Implement cascading dropdowns easily by linking parent values to child input par
 | `ValueChanged` | `EventCallback<State?>` | — | Callback triggered when the selected state changes. |
 | `OnSelected` | `EventCallback<State>` | — | Callback triggered upon selection. |
 | `CountryCode` | `string?` | `null` | **(Required)** The 2-letter ISO country code to load states for. Changing this resets the `Value` to null. |
+| `ShowIcon` | `bool` | `true` | Toggle whether the map icon (`🗺️`) displays in the button and dropdown list. |
 | `ShowSearch` | `bool` | `true` | Toggle the search input box inside the dropdown. |
+| `Theme` | `PickerTheme` | `PickerTheme.Light` | Visual styling theme (`Light`, `Dark`, `Blue`, `Forest`). |
+| `Roundness` | `PickerRoundness` | `PickerRoundness.Medium` | Corner radius layout style (`None`, `Small`, `Medium`, `Large`, `Full`). |
+| `Class` | `string` | `""` | Optional custom CSS class applied to the outer container. |
+| `Style` | `string` | `""` | Optional inline CSS styles applied to the outer container. |
 | `Placeholder` | `string` | `"Search state..."` | Placeholder text for the search input. |
 | `ButtonPlaceholder` | `string` | `"Select state"` | Default trigger button label when nothing is selected. |
 | `Disabled` | `bool` | `false` | Disables the component. If `CountryCode` is empty or null, the component is automatically disabled. |
@@ -189,7 +189,12 @@ Implement cascading dropdowns easily by linking parent values to child input par
 | `OnSelected` | `EventCallback<City>` | — | Callback triggered upon selection. |
 | `CountryCode` | `string?` | `null` | ISO 2-letter country code for validation/context. |
 | `StateId` | `int?` | `null` | **(Required)** The database identifier of the state to load cities for. Changing this resets the `Value` to null. |
+| `ShowIcon` | `bool` | `true` | Toggle whether the city icon (`🏙️`) displays in the button and dropdown list. |
 | `ShowSearch` | `bool` | `true` | Toggle the search input box inside the dropdown. |
+| `Theme` | `PickerTheme` | `PickerTheme.Light` | Visual styling theme (`Light`, `Dark`, `Blue`, `Forest`). |
+| `Roundness` | `PickerRoundness` | `PickerRoundness.Medium` | Corner radius layout style (`None`, `Small`, `Medium`, `Large`, `Full`). |
+| `Class` | `string` | `""` | Optional custom CSS class applied to the outer container. |
+| `Style` | `string` | `""` | Optional inline CSS styles applied to the outer container. |
 | `Placeholder` | `string` | `"Search city..."` | Placeholder text for the search input. |
 | `ButtonPlaceholder` | `string` | `"Select city"` | Default trigger button label when nothing is selected. |
 | `Disabled` | `bool` | `false` | Disables the component. If `StateId` is null, the component is automatically disabled. |
@@ -221,25 +226,31 @@ Manages states and cities based on hierarchical relationships.
 
 The components use modern **Blazor CSS Isolation**, which means all styles are fully isolated to the `CountryPicker.Blazor` library and won't leak or conflict with your host application styles.
 
-If you want to apply custom width limits or global overrides to the container, you can target the main container class in your app's main stylesheet:
+### Using CSS Variables
+
+Our styling engine utilizes CSS Custom Properties (`--cp-*`) cascading down from the `.country-picker-container` root. If you want custom visual properties not covered by the enums, you can override variables in your global app stylesheet:
 
 ```css
-/* Custom sizing and font theme overrides */
+/* Overriding CSS Custom Properties globally */
 .country-picker-container {
+    --cp-accent: #ff4081 !important; /* Change active focus/borders to hot pink */
+    --cp-font: 'Consolas', monospace !important; /* Custom font family override */
     max-width: 100% !important; /* Allow full-width layouts */
 }
-
-/* Customize trigger buttons */
-.country-picker-trigger {
-    border-radius: 4px !important;
-    background-color: #fcfcfc !important;
-}
 ```
+
+Available CSS variables to override:
+*   `--cp-bg`: Component background colors
+*   `--cp-trigger-bg`: Select button background
+*   `--cp-text`: Primary text color
+*   `--cp-text-muted`: Placeholder/arrow icons
+*   `--cp-border`: Form boundary borders
+*   `--cp-accent`: Highlight / Focus boundaries
+*   `--cp-dropdown-bg`: Popover container background
+*   `--cp-radius`: Border radius corners
 
 ---
 
 ## 📄 License & Attribution
 
 This library is licensed under the **MIT License**.
-
-Geographic and dialing data is parsed and packed from Daniel Ioannou's open-source package [flutter_country_picker](https://github.com/Daniel-Ioannou/flutter_country_picker). Special thanks to the original contributors for compiling and maintaining this high-quality dataset.

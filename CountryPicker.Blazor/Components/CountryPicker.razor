@@ -1,0 +1,114 @@
+@namespace CountryPicker.Blazor
+
+<div class="country-picker-container @(Disabled ? "disabled" : "") @Class" style="@GetInlineStyles()">
+    <!-- Trigger Button -->
+    <button type="button" class="country-picker-trigger" @onclick="ToggleDropdown" disabled="@Disabled">
+        @if (Value != null)
+        {
+            <span class="country-picker-flag">@Value.FlagEmoji</span>
+            <span class="country-picker-text">
+                @if (ShowPhoneCode)
+                {
+                    <span>@Value.Name (+@Value.PhoneCode)</span>
+                }
+                else
+                {
+                    <span>@Value.Name</span>
+                }
+            </span>
+        }
+        else
+        {
+            <span class="country-picker-placeholder">@ButtonPlaceholder</span>
+        }
+        <span class="country-picker-arrow @(IsOpen ? "open" : "")">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </span>
+    </button>
+
+    <!-- Dropdown Popover -->
+    @if (IsOpen)
+    {
+        <!-- Backdrop to handle closing when clicking outside the popover -->
+        <div class="country-picker-backdrop" @onclick="CloseDropdown"></div>
+        
+        <div class="country-picker-dropdown">
+            @if (ShowSearch)
+            {
+                <div class="country-picker-search-container">
+                    <span class="country-picker-search-icon">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" 
+                           class="country-picker-search-input" 
+                           placeholder="@Placeholder" 
+                           @value="_searchQuery" 
+                           @oninput="OnSearchInput" 
+                           @ref="_searchInputRef" />
+                    @if (!string.IsNullOrEmpty(_searchQuery))
+                    {
+                        <button type="button" class="country-picker-clear-btn" @onclick="ClearSearch">
+                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    }
+                </div>
+            }
+
+            <ul class="country-picker-list">
+                @{
+                    var list = GetFilteredCountries().ToList();
+                }
+                
+                @if (list.Count > 0)
+                {
+                    bool renderedFavoritesHeader = false;
+                    bool renderedAllHeader = false;
+
+                    @for (int i = 0; i < list.Count; i++)
+                    {
+                        var country = list[i];
+                        bool isFavorite = FavoriteCountries?.Contains(country.CountryCode, StringComparer.OrdinalIgnoreCase) == true;
+
+                        // Visual section grouping headers (only if not currently filtering via search)
+                        if (string.IsNullOrWhiteSpace(_searchQuery))
+                        {
+                            if (isFavorite && !renderedFavoritesHeader)
+                            {
+                                <li class="country-picker-header">Favorites</li>
+                                renderedFavoritesHeader = true;
+                            }
+                            else if (!isFavorite && FavoriteCountries?.Any() == true && !renderedAllHeader)
+                            {
+                                <li class="country-picker-divider"></li>
+                                <li class="country-picker-header">All Countries</li>
+                                renderedAllHeader = true;
+                            }
+                        }
+
+                        <li class="country-picker-item @(Value?.CountryCode == country.CountryCode ? "selected" : "")" 
+                            @onclick="() => SelectCountry(country)">
+                            <span class="country-picker-list-flag">@country.FlagEmoji</span>
+                            <span class="country-picker-list-name">@country.Name</span>
+                            @if (ShowPhoneCode)
+                            {
+                                <span class="country-picker-list-code">+@country.PhoneCode</span>
+                            }
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="country-picker-no-results">No countries found</li>
+                }
+            </ul>
+        </div>
+    }
+</div>

@@ -1,120 +1,16 @@
-@namespace CountryPicker.Blazor
-@inject CountryService CountryService
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 
-<div class="country-picker-container @(Disabled ? "disabled" : "")">
-    <!-- Trigger Button -->
-    <button type="button" class="country-picker-trigger" @onclick="ToggleDropdown" disabled="@Disabled">
-        @if (Value != null)
-        {
-            <span class="country-picker-flag">@Value.FlagEmoji</span>
-            <span class="country-picker-text">
-                @if (ShowPhoneCode)
-                {
-                    <span>@Value.Name (+@Value.PhoneCode)</span>
-                }
-                else
-                {
-                    <span>@Value.Name</span>
-                }
-            </span>
-        }
-        else
-        {
-            <span class="country-picker-placeholder">@ButtonPlaceholder</span>
-        }
-        <span class="country-picker-arrow @(IsOpen ? "open" : "")">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-        </span>
-    </button>
+namespace CountryPicker.Blazor;
 
-    <!-- Dropdown Popover -->
-    @if (IsOpen)
-    {
-        <!-- Backdrop to handle closing when clicking outside the popover -->
-        <div class="country-picker-backdrop" @onclick="CloseDropdown"></div>
-        
-        <div class="country-picker-dropdown">
-            @if (ShowSearch)
-            {
-                <div class="country-picker-search-container">
-                    <span class="country-picker-search-icon">
-                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                    </span>
-                    <input type="text" 
-                           class="country-picker-search-input" 
-                           placeholder="@Placeholder" 
-                           @value="_searchQuery" 
-                           @oninput="OnSearchInput" 
-                           @ref="_searchInputRef" />
-                    @if (!string.IsNullOrEmpty(_searchQuery))
-                    {
-                        <button type="button" class="country-picker-clear-btn" @onclick="ClearSearch">
-                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                    }
-                </div>
-            }
+public partial class CountryPicker
+{
+    [Inject]
+    private CountryService CountryService { get; set; } = default!;
 
-            <ul class="country-picker-list">
-                @{
-                    var list = GetFilteredCountries().ToList();
-                }
-                
-                @if (list.Count > 0)
-                {
-                    bool renderedFavoritesHeader = false;
-                    bool renderedAllHeader = false;
-
-                    @for (int i = 0; i < list.Count; i++)
-                    {
-                        var country = list[i];
-                        bool isFavorite = FavoriteCountries?.Contains(country.CountryCode, StringComparer.OrdinalIgnoreCase) == true;
-
-                        // Visual section grouping headers (only if not currently filtering via search)
-                        if (string.IsNullOrWhiteSpace(_searchQuery))
-                        {
-                            if (isFavorite && !renderedFavoritesHeader)
-                            {
-                                <li class="country-picker-header">Favorites</li>
-                                renderedFavoritesHeader = true;
-                            }
-                            else if (!isFavorite && FavoriteCountries?.Any() == true && !renderedAllHeader)
-                            {
-                                <li class="country-picker-divider"></li>
-                                <li class="country-picker-header">All Countries</li>
-                                renderedAllHeader = true;
-                            }
-                        }
-
-                        <li class="country-picker-item @(Value?.CountryCode == country.CountryCode ? "selected" : "")" 
-                            @onclick="() => SelectCountry(country)">
-                            <span class="country-picker-list-flag">@country.FlagEmoji</span>
-                            <span class="country-picker-list-name">@country.Name</span>
-                            @if (ShowPhoneCode)
-                            {
-                                <span class="country-picker-list-code">+@country.PhoneCode</span>
-                            }
-                        </li>
-                    }
-                }
-                else
-                {
-                    <li class="country-picker-no-results">No countries found</li>
-                }
-            </ul>
-        </div>
-    }
-</div>
-
-@code {
     private bool IsOpen { get; set; }
     private string _searchQuery = string.Empty;
     private ElementReference _searchInputRef;
@@ -185,6 +81,122 @@
     /// </summary>
     [Parameter]
     public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Visual theme of the component (Light, Dark, Blue, Forest).
+    /// </summary>
+    [Parameter]
+    public PickerTheme Theme { get; set; } = PickerTheme.Light;
+
+    /// <summary>
+    /// Border radius roundness of the component.
+    /// </summary>
+    [Parameter]
+    public PickerRoundness Roundness { get; set; } = PickerRoundness.Medium;
+
+    /// <summary>
+    /// Custom CSS class to apply to the root container.
+    /// </summary>
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Custom inline styles to apply to the root container.
+    /// </summary>
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+
+    private string GetInlineStyles()
+    {
+        var styles = new List<string>();
+
+        // Set Radius
+        var radius = Roundness switch
+        {
+            PickerRoundness.None => "0px",
+            PickerRoundness.Small => "4px",
+            PickerRoundness.Medium => "8px",
+            PickerRoundness.Large => "12px",
+            PickerRoundness.Full => "9999px",
+            _ => "8px"
+        };
+        styles.Add($"--cp-radius: {radius}");
+
+        // Set Colors depending on theme
+        switch (Theme)
+        {
+            case PickerTheme.Dark:
+                styles.Add("--cp-bg: #1e1e1e");
+                styles.Add("--cp-trigger-bg: #2d2d2d");
+                styles.Add("--cp-text: #f5f5f5");
+                styles.Add("--cp-text-muted: #888888");
+                styles.Add("--cp-border: #444444");
+                styles.Add("--cp-border-hover: #555555");
+                styles.Add("--cp-accent: #0078d4");
+                styles.Add("--cp-accent-rgba: rgba(0, 120, 212, 0.25)");
+                styles.Add("--cp-dropdown-bg: #1e1e1e");
+                styles.Add("--cp-dropdown-border: #333333");
+                styles.Add("--cp-dropdown-shadow: rgba(0, 0, 0, 0.5)");
+                styles.Add("--cp-item-hover-bg: #2d2d2d");
+                styles.Add("--cp-item-hover-text: #ffffff");
+                styles.Add("--cp-item-selected-bg: #263c50");
+                styles.Add("--cp-item-selected-text: #5ea6e6");
+                styles.Add("--cp-item-selected-code: #89c4f4");
+                styles.Add("--cp-search-bg: #252526");
+                break;
+
+            case PickerTheme.Blue:
+                styles.Add("--cp-bg: #ffffff");
+                styles.Add("--cp-trigger-bg: #f4f8fa");
+                styles.Add("--cp-text: #1b365d");
+                styles.Add("--cp-text-muted: #5c768d");
+                styles.Add("--cp-border: #b0c4de");
+                styles.Add("--cp-border-hover: #4682b4");
+                styles.Add("--cp-accent: #1e90ff");
+                styles.Add("--cp-accent-rgba: rgba(30, 144, 255, 0.2)");
+                styles.Add("--cp-dropdown-bg: #ffffff");
+                styles.Add("--cp-dropdown-border: #b0c4de");
+                styles.Add("--cp-dropdown-shadow: rgba(27, 54, 93, 0.15)");
+                styles.Add("--cp-item-hover-bg: #f0f8ff");
+                styles.Add("--cp-item-hover-text: #1b365d");
+                styles.Add("--cp-item-selected-bg: #e6f2ff");
+                styles.Add("--cp-item-selected-text: #1e90ff");
+                styles.Add("--cp-item-selected-code: #87cefa");
+                styles.Add("--cp-search-bg: #f0f8ff");
+                break;
+
+            case PickerTheme.Forest:
+                styles.Add("--cp-bg: #ffffff");
+                styles.Add("--cp-trigger-bg: #fdfefd");
+                styles.Add("--cp-text: #1e3f20");
+                styles.Add("--cp-text-muted: #5e7d5f");
+                styles.Add("--cp-border: #c8d6ca");
+                styles.Add("--cp-border-hover: #557c56");
+                styles.Add("--cp-accent: #2e7d32");
+                styles.Add("--cp-accent-rgba: rgba(46, 125, 50, 0.2)");
+                styles.Add("--cp-dropdown-bg: #ffffff");
+                styles.Add("--cp-dropdown-border: #c8d6ca");
+                styles.Add("--cp-dropdown-shadow: rgba(30, 63, 32, 0.15)");
+                styles.Add("--cp-item-hover-bg: #f1f8f3");
+                styles.Add("--cp-item-hover-text: #1e3f20");
+                styles.Add("--cp-item-selected-bg: #e8f5e9");
+                styles.Add("--cp-item-selected-text: #2e7d32");
+                styles.Add("--cp-item-selected-code: #a5d6a7");
+                styles.Add("--cp-search-bg: #f1f8f3");
+                break;
+
+            case PickerTheme.Light:
+            default:
+                break;
+        }
+
+        if (!string.IsNullOrWhiteSpace(Style))
+        {
+            styles.Add(Style);
+        }
+
+        return string.Join("; ", styles);
+    }
 
     protected override void OnInitialized()
     {

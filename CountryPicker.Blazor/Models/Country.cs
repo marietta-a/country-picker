@@ -86,14 +86,11 @@ public class Country
         return CountryPhoneCodes.Codes.TryGetValue(countryCode.ToUpperInvariant(), out var data) ? data.PhoneCode : "1";
     }
 
-
     private static string GetExamplePhone(string countryCode)
     {
         if (string.IsNullOrEmpty(countryCode)) return "202-555-0199";
         return ExamplePhoneMap.TryGetValue(countryCode.ToUpperInvariant(), out var example) ? example : "202-555-0199";
     }
-
-   
 
     private static readonly Dictionary<string, string> ExamplePhoneMap = new(StringComparer.OrdinalIgnoreCase)
     {

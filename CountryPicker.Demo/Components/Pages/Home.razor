@@ -16,6 +16,36 @@
             <p class="card-description">Modify properties dynamically to test the reactivity and robustness of the component's API parameters.</p>
 
             <div class="control-group">
+                <label class="control-label">Select Visual Theme</label>
+                <select class="control-select" @bind="SelectedTheme">
+                    @foreach (var theme in Enum.GetValues<PickerTheme>())
+                    {
+                        <option value="@theme">@theme Theme</option>
+                    }
+                </select>
+                <span class="control-desc">Toggles between Predefined Visual Themes (CSS-variable powered).</span>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Select Corner Roundness</label>
+                <select class="control-select" @bind="SelectedRoundness">
+                    @foreach (var round in Enum.GetValues<PickerRoundness>())
+                    {
+                        <option value="@round">@round Corners</option>
+                    }
+                </select>
+                <span class="control-desc">Modifies component border-radius dynamically.</span>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <input type="checkbox" @bind="ShowIcons" />
+                    Show State & City Icons
+                </label>
+                <span class="control-desc">Toggles map/city icons in the cascading pickers.</span>
+            </div>
+
+            <div class="control-group">
                 <label class="control-label">
                     <input type="checkbox" @bind="ShowPhoneCode" />
                     Show Phone Dialing Codes
@@ -73,7 +103,9 @@
                         ExcludeCountries="GetExclusions()"
                         Placeholder="Search country records..."
                         ButtonPlaceholder="Select a country record..."
-                        OnSelected="OnSelectedCallback" />
+                        OnSelected="OnSelectedCallback"
+                        Theme="SelectedTheme"
+                        Roundness="SelectedRoundness" />
                 </div>
 
                 <div class="picker-field mt-3">
@@ -84,7 +116,10 @@
                         Disabled="Disabled"
                         Placeholder="Search state records..."
                         ButtonPlaceholder="Select a state..."
-                        OnSelected="OnStateCallback" />
+                        OnSelected="OnStateCallback"
+                        Theme="SelectedTheme"
+                        Roundness="SelectedRoundness"
+                        ShowIcon="ShowIcons" />
                 </div>
 
                 <div class="picker-field mt-3">
@@ -96,7 +131,10 @@
                         Disabled="Disabled"
                         Placeholder="Search city records..."
                         ButtonPlaceholder="Select a city..."
-                        OnSelected="OnCityCallback" />
+                        OnSelected="OnCityCallback"
+                        Theme="SelectedTheme"
+                        Roundness="SelectedRoundness"
+                        ShowIcon="ShowIcons" />
                 </div>
             </div>
 
@@ -247,6 +285,25 @@
 
     .control-group:hover {
         background-color: #edf2f7;
+    }
+
+    .control-select {
+        width: 100%;
+        height: 38px;
+        padding: 6px 12px;
+        border: 1px solid #cbd5e0;
+        border-radius: 6px;
+        font-size: 14.5px;
+        color: #2d3748;
+        background-color: #ffffff;
+        margin-bottom: 6px;
+        cursor: pointer;
+    }
+
+    .control-select:focus {
+        outline: none;
+        border-color: #3182ce;
+        box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.25);
     }
 
     .control-label {
@@ -456,6 +513,9 @@
     private bool EnableFavorites = true;
     private bool EnableExclusions = false;
     private bool Disabled = false;
+    private PickerTheme SelectedTheme = PickerTheme.Light;
+    private PickerRoundness SelectedRoundness = PickerRoundness.Medium;
+    private bool ShowIcons = true;
 
     private string? LastSelectedMsg;
 
