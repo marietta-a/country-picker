@@ -12,12 +12,13 @@
     <Company>Open Source</Company>
     <Description>A lightweight, high-performance, and beautifully styled CountryPicker component for Blazor, ported from the popular country_picker Flutter package by Daniel Ioannou. Features searchable dropdown combobox, customizable favorites, exclusions, and dialing codes, using zero-asset native emoji flags.</Description>
     <PackageTags>blazor country-picker phone-code flag-emoji country razor-components rcl</PackageTags>
-    <RepositoryUrl>https://github.com/Daniel-Ioannou/flutter_country_picker</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/Daniel-Ioannou/flutter_country_picker</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/marietta-a/country-picker</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/marietta-a/country-picker</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
     <Title>A lightweight, high-performance, and beautifully styled reusable Country, State, and City Picker component library for Blazor </Title>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
 
@@ -25,12 +26,17 @@
     <SupportedPlatform Include="browser" />
   </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="countries.json.br" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="countries.json.br" Condition="Exists('countries.json.br')" />
+	</ItemGroup>
 
-  <ItemGroup>
+
+	<ItemGroup>
     <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
