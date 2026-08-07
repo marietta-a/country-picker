@@ -3,7 +3,7 @@
     display: inline-block;
     width: 100%;
     max-width: 320px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: var(--cp-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
     box-sizing: border-box;
 }
 
@@ -18,31 +18,31 @@
     width: 100%;
     min-height: 44px;
     padding: 10px 14px;
-    background-color: #ffffff;
-    border: 1px solid #dcdfe6;
-    border-radius: 8px;
+    background-color: var(--cp-trigger-bg, #ffffff);
+    border: 1px solid var(--cp-border, #dcdfe6);
+    border-radius: var(--cp-radius, 8px);
     cursor: pointer;
     font-size: 15px;
-    color: #303133;
+    color: var(--cp-text, #303133);
     text-align: left;
     transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.2s ease;
 }
 
 .country-picker-trigger:hover:not(:disabled) {
-    border-color: #c0c4cc;
-    background-color: #fafafa;
+    border-color: var(--cp-border-hover, #c0c4cc);
+    background-color: var(--cp-item-hover-bg, #fafafa);
 }
 
 .country-picker-trigger:focus:not(:disabled) {
     outline: none;
-    border-color: #409eff;
-    box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.2);
+    border-color: var(--cp-accent, #409eff);
+    box-shadow: 0 0 0 3px var(--cp-accent-rgba, rgba(64, 158, 255, 0.2));
 }
 
 .country-picker-container.disabled .country-picker-trigger {
-    background-color: #f5f7fa;
-    border-color: #e4e7ed;
-    color: #c0c4cc;
+    background-color: var(--cp-item-hover-bg, #f5f7fa);
+    border-color: var(--cp-border, #e4e7ed);
+    color: var(--cp-text-muted, #c0c4cc);
     cursor: not-allowed;
 }
 
@@ -62,7 +62,7 @@
 }
 
 .country-picker-placeholder {
-    color: #909399;
+    color: var(--cp-text-muted, #909399);
 }
 
 .country-picker-arrow {
@@ -70,13 +70,13 @@
     align-items: center;
     justify-content: center;
     margin-left: 8px;
-    color: #909399;
+    color: var(--cp-text-muted, #909399);
     transition: transform 0.25s ease;
 }
 
 .country-picker-arrow.open {
     transform: rotate(180deg);
-    color: #409eff;
+    color: var(--cp-accent, #409eff);
 }
 
 /* Backdrop for clicking outside */
@@ -96,10 +96,10 @@
     top: calc(100% + 6px);
     left: 0;
     width: 100%;
-    background-color: #ffffff;
-    border: 1px solid #e4e7ed;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    background-color: var(--cp-dropdown-bg, #ffffff);
+    border: 1px solid var(--cp-dropdown-border, #e4e7ed);
+    border-radius: var(--cp-radius, 8px);
+    box-shadow: var(--cp-dropdown-shadow, 0 4px 20px rgba(0, 0, 0, 0.12));
     z-index: 999;
     overflow: hidden;
     animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -120,7 +120,7 @@
 .country-picker-search-container {
     position: relative;
     padding: 10px;
-    border-bottom: 1px solid #f2f6fc;
+    border-bottom: 1px solid var(--cp-dropdown-border, #f2f6fc);
     display: flex;
     align-items: center;
 }
@@ -128,7 +128,7 @@
 .country-picker-search-icon {
     position: absolute;
     left: 20px;
-    color: #909399;
+    color: var(--cp-text-muted, #909399);
     pointer-events: none;
     display: flex;
     align-items: center;
@@ -138,18 +138,18 @@
     width: 100%;
     height: 36px;
     padding: 8px 32px 8px 34px;
-    border: 1px solid #dcdfe6;
-    border-radius: 6px;
+    border: 1px solid var(--cp-border, #dcdfe6);
+    border-radius: calc(var(--cp-radius, 8px) - 2px);
     font-size: 14px;
-    color: #606266;
-    background-color: #f4f4f5;
+    color: var(--cp-text, #606266);
+    background-color: var(--cp-search-bg, #f4f4f5);
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .country-picker-search-input:focus {
     outline: none;
-    border-color: #409eff;
-    background-color: #ffffff;
+    border-color: var(--cp-accent, #409eff);
+    background-color: var(--cp-dropdown-bg, #ffffff);
 }
 
 .country-picker-clear-btn {
@@ -157,7 +157,7 @@
     right: 20px;
     background: none;
     border: none;
-    color: #c0c4cc;
+    color: var(--cp-text-muted, #c0c4cc);
     cursor: pointer;
     padding: 2px;
     border-radius: 50%;
@@ -168,8 +168,8 @@
 }
 
 .country-picker-clear-btn:hover {
-    color: #909399;
-    background-color: #f4f4f5;
+    color: var(--cp-text, #909399);
+    background-color: var(--cp-search-bg, #f4f4f5);
 }
 
 /* Country Scrollable List */
@@ -191,12 +191,12 @@
 }
 
 .country-picker-list::-webkit-scrollbar-thumb {
-    background-color: #dcdfe6;
+    background-color: var(--cp-border, #dcdfe6);
     border-radius: 3px;
 }
 
 .country-picker-list::-webkit-scrollbar-thumb:hover {
-    background-color: #c0c4cc;
+    background-color: var(--cp-border-hover, #c0c4cc);
 }
 
 /* Group Headers and Dividers */
@@ -205,14 +205,14 @@
     font-size: 11px;
     text-transform: uppercase;
     font-weight: 700;
-    color: #909399;
+    color: var(--cp-text-muted, #909399);
     letter-spacing: 0.5px;
-    background-color: #fafafa;
+    background-color: var(--cp-item-hover-bg, #fafafa);
 }
 
 .country-picker-divider {
     height: 1px;
-    background-color: #f2f6fc;
+    background-color: var(--cp-dropdown-border, #f2f6fc);
     margin: 6px 0;
 }
 
@@ -223,18 +223,18 @@
     padding: 10px 14px;
     cursor: pointer;
     font-size: 14px;
-    color: #606266;
+    color: var(--cp-text, #606266);
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .country-picker-item:hover {
-    background-color: #f5f7fa;
-    color: #303133;
+    background-color: var(--cp-item-hover-bg, #f5f7fa);
+    color: var(--cp-item-hover-text, #303133);
 }
 
 .country-picker-item.selected {
-    background-color: #ecf5ff;
-    color: #409eff;
+    background-color: var(--cp-item-selected-bg, #ecf5ff);
+    color: var(--cp-item-selected-text, #409eff);
     font-weight: 600;
 }
 
@@ -255,18 +255,18 @@
 
 .country-picker-list-code {
     font-size: 13px;
-    color: #909399;
+    color: var(--cp-text-muted, #909399);
     margin-left: 8px;
     font-weight: normal;
 }
 
 .country-picker-item.selected .country-picker-list-code {
-    color: #a0cfff;
+    color: var(--cp-item-selected-code, #a0cfff);
 }
 
 .country-picker-no-results {
     padding: 16px;
     text-align: center;
     font-size: 14px;
-    color: #909399;
+    color: var(--cp-text-muted, #909399);
 }

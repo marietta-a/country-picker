@@ -1,6 +1,6 @@
 @namespace CountryPicker.Blazor
 
-<div class="country-picker-container @(Disabled ? "disabled" : "")">
+<div class="country-picker-container @(Disabled ? "disabled" : "") @Class" style="@GetInlineStyles()">
     <!-- Trigger Button -->
     <button type="button" class="country-picker-trigger" @onclick="ToggleDropdown" disabled="@Disabled">
         @if (Value != null)

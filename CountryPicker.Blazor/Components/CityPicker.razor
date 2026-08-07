@@ -1,11 +1,14 @@
 @namespace CountryPicker.Blazor
 
-<div class="country-picker-container @(Disabled || StateId == null ? "disabled" : "")">
+<div class="country-picker-container @(Disabled || StateId == null ? "disabled" : "") @Class" style="@GetInlineStyles()">
     <!-- Trigger Button -->
     <button type="button" class="country-picker-trigger" @onclick="ToggleDropdown" disabled="@(Disabled || StateId == null)">
         @if (Value != null)
         {
-            <span class="country-picker-flag">🏙️</span>
+            @if (ShowIcon)
+            {
+                <span class="country-picker-flag">🏙️</span>
+            }
             <span class="country-picker-text">@Value.Name</span>
         }
         else
@@ -67,7 +70,10 @@
                         var city = list[i];
                         <li class="country-picker-item @(Value?.Id == city.Id ? "selected" : "")" 
                             @onclick="() => SelectCity(city)">
-                            <span class="country-picker-list-flag">🏙️</span>
+                            @if (ShowIcon)
+                            {
+                                <span class="country-picker-list-flag">🏙️</span>
+                            }
                             <span class="country-picker-list-name">@city.Name</span>
                         </li>
                     }
