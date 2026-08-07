@@ -9,7 +9,7 @@ namespace CountryPicker.Blazor;
 public partial class CountryPicker
 {
     [Inject]
-    private CountryService CountryService { get; set; } = default!;
+    private CountryPickerService CountryPickerService { get; set; } = default!;
 
     private bool IsOpen { get; set; }
     private string _searchQuery = string.Empty;
@@ -258,7 +258,7 @@ public partial class CountryPicker
 
     private IEnumerable<Country> GetFilteredCountries()
     {
-        var source = CountryService.GetAll();
+        var source = CountryPickerService.GetAll();
 
         // 1. Apply exclusions
         if (ExcludeCountries?.Any() == true)

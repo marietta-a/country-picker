@@ -1,14 +1,12 @@
-using CountryPicker.Demo.Components;
 using CountryPicker.Blazor;
-
+using CountryPicker.Demo.Components;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<CountryService>();
-builder.Services.AddSingleton<LocationService>();
+builder.Services.AddSingleton<CountryPickerService>();
 
 var app = builder.Build();
 
