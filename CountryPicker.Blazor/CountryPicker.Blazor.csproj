@@ -7,7 +7,7 @@
     
     <!-- NuGet Packaging Properties -->
     <PackageId>CountryPicker.Blazor</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Authors>Marietta</Authors>
     <Company>Open Source</Company>
     <Description>A lightweight, high-performance, and beautifully styled CountryPicker component for Blazor, ported from the popular country_picker Flutter package by Daniel Ioannou. Features searchable dropdown combobox, customizable favorites, exclusions, and dialing codes, using zero-asset native emoji flags.</Description>
