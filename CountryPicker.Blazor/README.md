@@ -241,5 +241,3 @@ If you want to apply custom width limits or global overrides to the container, y
 ## 📄 License & Attribution
 
 This library is licensed under the **MIT License**.
-
-Geographic and dialing data is parsed and packed from Daniel Ioannou's open-source package [flutter_country_picker](https://github.com/Daniel-Ioannou/flutter_country_picker). Special thanks to the original contributors for compiling and maintaining this high-quality dataset.
