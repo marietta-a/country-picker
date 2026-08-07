@@ -9,7 +9,7 @@ namespace CountryPicker.Blazor;
 public partial class CityPicker
 {
     [Inject]
-    private LocationService LocationService { get; set; } = default!;
+    private CountryPickerService CountryPickerService { get; set; } = default!;
 
     private bool IsOpen { get; set; }
     private string _searchQuery = string.Empty;
@@ -260,7 +260,7 @@ public partial class CityPicker
 
     private IEnumerable<City> GetFilteredCities()
     {
-        var source = LocationService.GetCities(CountryCode, StateId);
+        var source = CountryPickerService.GetCities(CountryCode, StateId);
 
         if (!string.IsNullOrWhiteSpace(_searchQuery))
         {

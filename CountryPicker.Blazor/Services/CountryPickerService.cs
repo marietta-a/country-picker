@@ -10,11 +10,11 @@ namespace CountryPicker.Blazor;
 /// <summary>
 /// Service to load and manage the full dataset of countries from the embedded JSON resource.
 /// </summary>
-public class CountryService
+public class CountryPickerService
 {
     private readonly List<Country> _countries = [];
 
-    public CountryService()
+    public CountryPickerService()
     {
         try
         {
@@ -91,5 +91,41 @@ public class CountryService
         if (string.IsNullOrWhiteSpace(phoneCode)) return [];
         var cleanCode = phoneCode.TrimStart('+').Trim();
         return _countries.Where(c => c.PhoneCode.Equals(cleanCode, StringComparison.OrdinalIgnoreCase));
+    }
+
+
+
+    /// <summary>
+    /// Gets states for a given 2-letter country code.
+    /// </summary>
+    public IEnumerable<State> GetStates(string? countryCode)
+    {
+        if (string.IsNullOrWhiteSpace(countryCode))
+            return Enumerable.Empty<State>();
+
+        var country = GetByCountryCode(countryCode);
+        if (country == null)
+            return Enumerable.Empty<State>();
+
+        return country.States.OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Gets cities for a given country code and state ID.
+    /// </summary>
+    public IEnumerable<City> GetCities(string? countryCode, int? stateId)
+    {
+        if (string.IsNullOrWhiteSpace(countryCode) || stateId == null)
+            return Enumerable.Empty<City>();
+
+        var country = GetByCountryCode(countryCode);
+        if (country == null)
+            return Enumerable.Empty<City>();
+
+        var state = country.States.FirstOrDefault(s => s.Id == stateId);
+        if (state == null)
+            return Enumerable.Empty<City>();
+
+        return state.Cities.OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase);
     }
 }

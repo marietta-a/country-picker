@@ -9,7 +9,7 @@ namespace CountryPicker.Blazor;
 public partial class StatePicker
 {
     [Inject]
-    private LocationService LocationService { get; set; } = default!;
+    private CountryPickerService CountryPickerService { get; set; } = default!;
 
     private bool IsOpen { get; set; }
     private string _searchQuery = string.Empty;
@@ -254,7 +254,7 @@ public partial class StatePicker
 
     private IEnumerable<State> GetFilteredStates()
     {
-        var source = LocationService.GetStates(CountryCode);
+        var source = CountryPickerService.GetStates(CountryCode);
 
         if (!string.IsNullOrWhiteSpace(_searchQuery))
         {

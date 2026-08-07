@@ -18,6 +18,11 @@ A lightweight, high-performance, and beautifully styled **Country, State, and Ci
 - **Modern UI & Smooth Animations**: Out-of-the-box CSS isolation ensures beautiful, native-feeling panels with micro-interactions, popover animations, clear buttons, and click-outside dismissal (via full-viewport backdrop overlays).
 - **Interactive Focus**: Automatically shifts focus to the search query input as soon as the popover dropdown opens.
 
+
+## 🌟 Demo & Live Preview
+
+[![Demo](https://github.com/marietta-a/country-picker/blob/main/docs/demo.gif)](https://github.com/marietta-a/country-picker/blob/main/docs/demo.gif)
+
 ---
 
 ## 🚀 Getting Started
@@ -38,8 +43,7 @@ Register the required data and location services in your application container (
 using CountryPicker.Blazor;
 
 // Register country/geography services
-builder.Services.AddSingleton<CountryService>();
-builder.Services.AddSingleton<LocationService>();
+builder.Services.AddSingleton<CountryPickerService>();
 ```
 
 ### 3. Add Imports

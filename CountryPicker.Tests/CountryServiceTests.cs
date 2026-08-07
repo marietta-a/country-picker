@@ -9,7 +9,7 @@ public class CountryServiceTests
     public void GetAll_ReturnsLoadedCountriesDataset()
     {
         // Arrange
-        var service = new CountryService();
+        var service = new CountryPickerService();
 
         // Act
         var countries = service.GetAll().ToList();
@@ -24,7 +24,7 @@ public class CountryServiceTests
     public void CountryFields_AreCorrectlyParsed()
     {
         // Arrange
-        var service = new CountryService();
+        var service = new CountryPickerService();
 
         // Act & Assert for US
         var us = service.GetByCountryCode("US");
@@ -53,7 +53,7 @@ public class CountryServiceTests
     public void GetByCountryCode_ReturnsExpectedCountry_CaseInsensitive(string code, string expectedName)
     {
         // Arrange
-        var service = new CountryService();
+        var service = new CountryPickerService();
 
         // Act
         var country = service.GetByCountryCode(code);
@@ -68,7 +68,7 @@ public class CountryServiceTests
     public void GetByCountryCode_ReturnsNullForInvalidOrEmptyCode()
     {
         // Arrange
-        var service = new CountryService();
+        var service = new CountryPickerService();
 
         // Act & Assert
         Assert.Null(service.GetByCountryCode("ZZ"));
@@ -80,7 +80,7 @@ public class CountryServiceTests
     public void GetByPhoneCode_ReturnsMatchingCountries()
     {
         // Arrange
-        var service = new CountryService();
+        var service = new CountryPickerService();
 
         // Act
         var matches = service.GetByPhoneCode("1").ToList();
@@ -92,14 +92,13 @@ public class CountryServiceTests
     }
 
     [Fact]
-    public void LocationService_ReturnsStatesAndCitiesCorrectly()
+    public void CountryService_ReturnsStatesAndCitiesCorrectly()
     {
         // Arrange
-        var countryService = new CountryService();
-        var locationService = new LocationService(countryService);
+        var countryService = new CountryPickerService();
 
         // Act - US States
-        var usStates = locationService.GetStates("US").ToList();
+        var usStates = countryService.GetStates("US").ToList();
         
         // Assert
         Assert.NotEmpty(usStates);
@@ -107,7 +106,7 @@ public class CountryServiceTests
         Assert.NotNull(California);
 
         // Act - California Cities
-        var caliCities = locationService.GetCities("US", California.Id).ToList();
+        var caliCities = countryService.GetCities("US", California.Id).ToList();
 
         // Assert
         Assert.NotEmpty(caliCities);
@@ -117,7 +116,7 @@ public class CountryServiceTests
     [Fact]
     public void OptimizeDataset()
     {
-        var countryService = new CountryService();
+        var countryService = new CountryPickerService();
         var countries = countryService.GetAll().ToList();
         
         var options = new System.Text.Json.JsonSerializerOptions
